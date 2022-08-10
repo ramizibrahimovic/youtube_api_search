@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youtube API Search APP</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="outer-container">
+        <div class="header-container">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                <span><h3>Youtube</h3><span class="mx">MX</span></span>
+            </div>
+            <form id="search-form">
+                    <input class="search-bar" type="text" placeholder="Search">
+                    <input class="search-button" type="submit" value="🔎">
+            </form>
+        </div>
+        <div class="inner-container">
+            <div class="button-container">
+                <ul>
+                    <li class="active">All</li>
+                    <li>Live</li>
+                    <li>Music</li>
+                    <li>Chill-out music</li>
+                    <li>Gaming</li>
+                    <li>Bossa nova</li>
+                </ul>
+            </div>
+            <div class="video-container">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let searchForm = document.getElementById("search-form");
+        searchForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            let apiUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&q=" + document.getElementsByClassName("search-bar")[0].value + "&maxResults=10&key=AIzaSyDp-FT_FLBFsuHV6X_kBxgChpqiuUR19e8"
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                // Typical action to be performed when the document is ready:
+                let data = JSON.parse(xhttp.responseText);
+                let videoContainer = document.querySelector(".video-container");
+                videoContainer.innerHTML = "";
+                data.items.map(function(item){
+                    let video = document.createElement("div");
+                    let url = "https://www.youtube.com/watch?v=" + item.id.videoId;
+                    video.setAttribute("class","video");
+                    video.innerHTML = `
+                        <a href=${url}>
+                            <div class="thumbnail">
+                                <img src="${item.snippet.thumbnails.medium.url}" alt="thumbnail" width="280" height="160">
+                            </div>
+                            <div class="video-content">
+                                <div class="profile-picture">
+                                    <img src="https://yt3.ggpht.com/ytc/AKedOLShaRqVRZPJ9VI1FaLCrykTSJKokKlSyTmOHWBZ7A=s176-c-k-c0x00ffffff-no-rj-mo" alt="channel-profile" width="35" height="35">
+                                </div>
+                                <div class="video-text">
+                                    <h5 class="title">${item.snippet.title}</h5>
+                                    <p>${item.snippet.channelTitle}</p>
+                                    <p>views • ${new Date(item.snippet.publishTime).toLocaleString().slice(0,5)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        `
+
+                    videoContainer.appendChild(video);
+                    return item;
+                });
+            };
+        };
+
+        xhttp.open("GET", apiUrl, true);
+        xhttp.send();
+    })
+
+
+    </script>
+</body>
+</html>
+<!-- todos:
+2. add channel profile picture instead of flowGrapplings
+3. some videos are live and have a different video text. add this. code already in:
+                let videoText = document.querySelector(".video-text");
+                if (item.snippet.liveBroadcastContent == "live") {
+                    let pContent = document.createElement("p");
+                    pContent.innerHTML = `
+                    810k views · 23 hours ago
+                    `
+                    videoText.appendChild(pContent)
+                }
+            -->
